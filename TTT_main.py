@@ -1,61 +1,74 @@
 import TTT_UX_and_Graphics as UG
-##from TTT_UX_and_Graphics import *
-
-done = False
-## draw board and setup game
-UG.Init_Game()
-
-
-## send and manage a control panel
-# h-h,h-r,exit? (not needed immediatle, nicer than x button tho)
-# X always goes first?
-
-idle = 0
-Choose_Mode = 1 
-HvH = 2
-HvR = 3
-RvR = 4
-NextMove = 10
-
-done, ret_mode = UG.Uin(Choose_Mode)
-if done:
-    UG.Draw_Board()
-
-done, ret_mode,  = UG.Uin(ret_mode)
-if done:
-    # next move
-
-    
-
-while state == Choose_Mode:
-    
-        state = 
-while state == playing 
-##    done = Uin(HvH)
-
-    
-
-# playing loop here yes, with states "while choosing mode" while "playing"
-
-# NewMove = uin(next move   human? robot? both?) #add a return of the move played
-# if hvr or rvr
-# move = ai_move() # return move, good %s, bad %s
-# game_mode = check_score(board) 
+import TTT_referee as ref
+import TTT_brain as brain
+import random
+import numpy as np
 
 
-'''
-remember(NewMove [0-8], P1Move[t/f], board, game_done[0-2])
-need to ravel and save to a temporary buffer array every game state
-and the resulting move (concatenate to the last row)
-then when the game finishes 
-'''
+Running = True
+Stop = False
 
-# quit always possible... clicking on quit
+GameMode = 0
 
-# check who won
- # if game mode != 0
-     # displaywinner() graphics and ux func
-     # maybe tally score at some point
+while not Stop:
+    if GameMode == 0:
+        UG.Init_Board() # draw board and setup game
+        brain.ClearTmp()
+        OldBoard = np.zeros((3,3),dtype=np.int)
+        board = np.zeros((3,3),dtype=np.int)
+        GameMode = UG.ChooseMode()
+        print("GameMode:",GameMode)
+        InPlay = True
+        P1Turn = True
+        
+    if GameMode == 2: # replace nums with vars
+        aiP1 = random.choice([True, False]) # returns T/F for if ai is Player 1
+    while InPlay:
+        
+        if GameMode == 1:
+            OldBoard = board
+            if P1Turn:
+                move, board, Stop = UG.HumanMove(P1Turn,board)
+                brain.SaveTmp(P1Turn,move,OldBoard)
+                P1Turn = False 
+            else:
+                move, board, Stop = UG.HumanMove(P1Turn,board)
+                brain.SaveTmp(P1Turn,move,OldBoard)
+                P1Turn = True
+            
+##        if GameMode == 2:
+##            if P1Turn:
+##                if aiP1:
+##                    move, board = ai.move(P1Turn,OldBoard)
+##                else:   
+##                    move, board = UG.HumanMove(P1Turn,OldBoard)
+##                brain.SaveTmp(P1Turn,move,OldBoard)
+##                P1Turn = False 
+##            else:
+##                if not aiP1:
+##                    move, board = ai.move(P1Turn,OldBoard)
+##                else:   
+##                    move, board = UG.HumanMove(P1Turn,OldBoard)
+##                brain.SaveTmp(P1Turn,move,OldBoard)
+##                P1Turn = True
+                
+        UG.Update_Board(board) # draw
+        
+        Win, Loss, Tie = ref.CheckScore(board) # returns wrt P1
+        if Win or Loss or Tie:
+##            brain.Label_and_Remember(Win, Loss, Tie, board)
+            brain.ClearTmp()
+            GameMode = 0
+            InPlay = False
+            print(Win,Loss,Tie)
+
+        if Stop:
+            InPlay = False
+
+            
+
+        
+        
 
 
 

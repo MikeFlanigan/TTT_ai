@@ -1,10 +1,22 @@
-# TTT_memory
+# TTT_brain 
 
+tmpGameHist = np.zeros[(1,10),dtype = np.int]
+def SaveTmp(P1Turn,move,OldBoard):
+    global tmpGameHist
 
-def init_memory()
+    return
+
+def ClearTmp():
+    global tmpGameHist
+    tmpGameHist = np.zeros[(1,10),dtype = np.int]
+    print("cleared temporary game history")
+    return
+
+def init_memory():
     # check if memory_positive.npy and memory_negative.npy exists
     # if it does then load it
     # if it doesn't then initialize it IF needed
+    return
     
 def remember(NewMove, P1Move, board, game_done): #game_done(0=not done, 1= p1 win, 2 = p1 loss)
     # always logs wrt P1

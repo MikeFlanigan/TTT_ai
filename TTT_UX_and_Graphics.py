@@ -12,8 +12,8 @@ l_gray = (196,195,190)
 display_width = 600
 display_height = 400
 size = [display_width, display_height]
-GUIdisplay = pygame.display.set_mode(size)
-pygame.display.set_caption('TTT')
+
+
     
 cho_rect_w = 190
 cho_rect_h = 80
@@ -24,16 +24,19 @@ RvRrect = pygame.Rect(3*cho_rect_pad+2*cho_rect_w, display_height/3,cho_rect_w,c
 
 square_size = 0
 
-P1turn = True
-board = np.zeros((3,3),dtype=np.int)
-cell = []
+##P1turn = True
 
-def Init_Game():
-    pygame.init()
-    GUIdisplay.fill(white)
-    pygame.draw.rect(GUIdisplay,black,HvHrect,0)
-    pygame.draw.rect(GUIdisplay,black,HvRrect,0)
-    pygame.draw.rect(GUIdisplay,black,RvRrect,0)
+cell = []
+pygame.init()
+TTTdisplay = pygame.display.set_mode(size)
+def Init_Board():
+    global TTTdisplay
+
+    pygame.display.set_caption('TTT')
+    TTTdisplay.fill(white)
+    pygame.draw.rect(TTTdisplay,black,HvHrect,0)
+    pygame.draw.rect(TTTdisplay,black,HvRrect,0)
+    pygame.draw.rect(TTTdisplay,black,RvRrect,0)
 
     # Display mode choice text
     font = pygame.font.Font(None, 36)
@@ -44,19 +47,36 @@ def Init_Game():
     text2pos = HvRrect.center
     text3pos = RvRrect.center
     # unfortunately no direct text onto image in pygame so instead render it onto a
-    # new surface and then blit the surface onto the main GUIdisplay
-    GUIdisplay.blit(text1, text1pos)
-    GUIdisplay.blit(text2, text2pos)
-    GUIdisplay.blit(text3, text3pos)
+    # new surface and then blit the surface onto the main TTTdisplay
+    TTTdisplay.blit(text1, text1pos)
+    TTTdisplay.blit(text2, text2pos)
+    TTTdisplay.blit(text3, text3pos)
 
     pygame.display.update()
     return
 
+def ChooseMode():
+    global TTTdisplay, pygame
+    mode = 0
+    while mode == 0:
+        for event in pygame.event.get():
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                if HvHrect.collidepoint(event.pos):
+                    mode = 1 # HvH
+                if HvRrect.collidepoint(event.pos):
+                    mode = 2 # HvR
+                if RvRrect.collidepoint(event.pos):
+                    mode = 3 # RvR
+            if event.type==pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_q):
+##                pygame.quit()
+                quit()
+    Draw_Board() # draws empty board
+    return mode
+
 def Draw_Board():
-##    global cell
     global cell, square_size
     cell = [0,1,2] # rows
-    GUIdisplay.fill(white) # clear old UX controls
+    TTTdisplay.fill(white) # clear old UX controls
     grid_pad = 50 # pixels on top and left
     square_size = 100
     for i in range(0,3): # rows 
@@ -65,64 +85,58 @@ def Draw_Board():
             left = grid_pad+square_size*(i)
             top = grid_pad+square_size*(j)
             width = height = square_size
-            pygame.draw.rect(GUIdisplay,black,(left,top,width,height),2)
+            pygame.draw.rect(TTTdisplay,black,(left,top,width,height),2)
             cell[i].append(pygame.Rect(left,top,width,height))
     pygame.display.update()
-    
-    print(cell)
-    
     return
-    
-def Update_Board():
+
+
+def HumanMove(P1Turn, board):
+    global TTTdisplay, pygame
+    Stop = False
+    tmpBoard = board
+    done = False
+    while not done:
+        for event in pygame.event.get():
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                for i in range(0,3):
+                    for j in range(0,3):
+                        if cell[j][i].collidepoint(event.pos) and P1Turn:
+                            if tmpBoard[i,j] == 0:
+                                tmpBoard[i,j] = 1
+                                move = j+i*3
+                                done = True
+                                print("i,j:",i,",",j)
+                                print("Move done")
+                        elif cell[j][i].collidepoint(event.pos) and not P1Turn:
+                            if tmpBoard[i,j] == 0:
+                                tmpBoard[i,j] = 2
+                                move = j+i*3
+                                done = True
+            if event.type==pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_q):
+                    exit()
+    NewBoard = tmpBoard
+    return move, tmpBoard, Stop
+
+
+
+def Update_Board(board):
     Xs = np.where(board == 2)
     Ohs = np.where(board == 1)
+    print("x's:",Xs," o's:",Ohs)
     for x in range(0,len(Xs[0])):
         center = cell[Xs[1][x]][Xs[0][x]].center
-        pygame.draw.circle(GUIdisplay,red,center,30,3)
+        pygame.draw.circle(TTTdisplay,red,center,30,3)
     for o in range(0,len(Ohs[0])):
         xl = cell[Ohs[1][o]][Ohs[0][o]].centerx - square_size/3
         xr = cell[Ohs[1][o]][Ohs[0][o]].centerx + square_size/3
         yu = cell[Ohs[1][o]][Ohs[0][o]].centery - square_size/3
         yd = cell[Ohs[1][o]][Ohs[0][o]].centery + square_size/3
-        pygame.draw.line(GUIdisplay,red,(xl,yu),(xr,yd),3)
-        pygame.draw.line(GUIdisplay,red,(xr,yu),(xl,yd),3)
+        pygame.draw.line(TTTdisplay,red,(xl,yu),(xr,yd),3)
+        pygame.draw.line(TTTdisplay,red,(xr,yu),(xl,yd),3)
     pygame.display.update()
     return
 
-
-def Uin(Game_State):
-    global P1turn, board
-    Playing = True
-    done = False
-    while not done:
-        for event in pygame.event.get():
-            if event.type==pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_q):
-                    Playing = False
-                    pygame.quit()
-            if event.type==pygame.MOUSEBUTTONDOWN and Game_State == 1:
-                if HvHrect.collidepoint(event.pos):
-##                    Draw_Board()
-                    Game_State = 2; # HvH
-                    done = True
-                if HvRrect.collidepoint(event.pos):
-                    Game_State = 3 # HvR
-                    done = True
-            if event.type==pygame.MOUSEBUTTONDOWN and Game_State == 2:
-                for i in range(0,3):
-                    for j in range(0,3):
-                        if cell[j][i].collidepoint(event.pos) and P1turn:
-                            print("cell:",cell[i][j])
-                            board[i,j] = 1
-                            P1turn = False
-                        elif cell[j][i].collidepoint(event.pos) and not P1turn:
-                            print("cell:",cell[i][j])
-                            board[i,j] = 2
-                            P1turn = True
-                Update_Board()
-                print(board)
-
-
-    return done, game_mode
 
 def Get_Board():
     return board
