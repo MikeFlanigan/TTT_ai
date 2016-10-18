@@ -94,7 +94,6 @@ def Draw_Board():
 def HumanMove(P1Turn, board):
     global TTTdisplay, pygame
     Stop = False
-    tmpBoard = board
     done = False
     while not done:
         for event in pygame.event.get():
@@ -102,21 +101,18 @@ def HumanMove(P1Turn, board):
                 for i in range(0,3):
                     for j in range(0,3):
                         if cell[j][i].collidepoint(event.pos) and P1Turn:
-                            if tmpBoard[i,j] == 0:
-                                tmpBoard[i,j] = 1
+                            if board[i,j] == 0:
+                                board[i,j] = 1
                                 move = j+i*3
                                 done = True
-                                print("i,j:",i,",",j)
-                                print("Move done")
                         elif cell[j][i].collidepoint(event.pos) and not P1Turn:
-                            if tmpBoard[i,j] == 0:
-                                tmpBoard[i,j] = 2
+                            if board[i,j] == 0:
+                                board[i,j] = 2
                                 move = j+i*3
                                 done = True
             if event.type==pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_q):
                     exit()
-    NewBoard = tmpBoard
-    return move, tmpBoard, Stop
+    return move, board, Stop
 
 
 

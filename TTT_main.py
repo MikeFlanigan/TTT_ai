@@ -4,7 +4,6 @@ import TTT_brain as brain
 import random
 import numpy as np
 
-
 Running = True
 Stop = False
 
@@ -24,9 +23,8 @@ while not Stop:
     if GameMode == 2: # replace nums with vars
         aiP1 = random.choice([True, False]) # returns T/F for if ai is Player 1
     while InPlay:
-        
         if GameMode == 1:
-            OldBoard = board
+            OldBoard = np.copy(board)
             if P1Turn:
                 move, board, Stop = UG.HumanMove(P1Turn,board)
                 brain.SaveTmp(P1Turn,move,OldBoard)
@@ -56,7 +54,7 @@ while not Stop:
         
         Win, Loss, Tie = ref.CheckScore(board) # returns wrt P1
         if Win or Loss or Tie:
-##            brain.Label_and_Remember(Win, Loss, Tie, board)
+            brain.Label_and_Remember(Win, Loss, Tie)
             brain.ClearTmp()
             GameMode = 0
             InPlay = False
