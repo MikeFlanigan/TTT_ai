@@ -2,15 +2,22 @@
 import numpy as np
 import os
 
+# global variable initialization
 P1TmpHist = np.zeros((1,9),dtype = np.int)
 P2TmpHist = np.zeros((1,9),dtype = np.int)
-
+good_data = np.zeros((1,9),dtype = np.int)
+bad_data = np.zeros((1,9),dtype = np.int)
 
 def init_memory():
+    global good_data, bad_data
     if os.path.isfile('positive_memories.npy'):
         good_data = np.load('positive_memories.npy')
+        print("success loading good data")
+        print(good_data)
     if os.path.isfile('negative_memories.npy'):
         bad_data = np.load('negative_memories.npy')
+        print("success loading bad data")
+        print(bad_data)
     return
 
 
@@ -33,6 +40,7 @@ def SaveTmp(P1Turn,move,OldBoard):
 
     
 def Label_and_Remember(Win, Loss, Tie): # wrt P1
+    global good_data, bad_data
     if Win or Tie:
         try:
             np.save('positive_memories.npy',np.concatenate((good_data,P1TmpHist),0))

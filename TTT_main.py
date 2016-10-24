@@ -13,6 +13,7 @@ while not Stop:
     if GameMode == 0:
         UG.Init_Board() # draw board and setup game
         brain.ClearTmp()
+        brain.init_memory()
         OldBoard = np.zeros((3,3),dtype=np.int)
         board = np.zeros((3,3),dtype=np.int)
         GameMode = UG.ChooseMode()
